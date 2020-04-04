@@ -1,23 +1,30 @@
 #include "Pattern.h"
-#include "Board.h"
 
-using puzzle::Board;
+#include <vector>
 
+namespace database {
 class PatternDatabase {
 
 private:
 
-    void generatePatterns();
+    void generatePatterns(Pattern startingPattern, std::vector<Pattern>& patternDB);
 
-    std::vector<int> pattern1;
+    std::vector<Pattern> getAllChildPatterns(const Pattern& pattern);
 
-    std::vector<int> pattern2;
+    std::vector<std::vector<int> > startingPatterns;
 
-    std::vector<int> pattern3;
-    
+    std::vector<Direction> directions;
+
+    std::vector<Pattern> patternDB1;
+
+    std::vector<Pattern> patternDB2;
+
+    std::vector<Pattern> patternDB3;
+
 public:
 
-    PatternDatabase(std::vector<std::vector<int> > startingPatterns);
+    PatternDatabase(std::vector<std::vector<int> > patterns);
 
-    int getHeuristic(const Board& board);
+    int getHeuristic(const Pattern& pattern);
 };
+}

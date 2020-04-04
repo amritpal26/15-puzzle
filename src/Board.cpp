@@ -2,6 +2,7 @@
 #include "math.h"
 
 #include <iostream>
+#include <algorithm>
 
 using puzzle::Board;
 using puzzle::Direction;
