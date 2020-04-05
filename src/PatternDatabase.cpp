@@ -3,6 +3,7 @@
 #include <queue>
 #include <algorithm>
 #include <iostream>
+#include <unordered_map>
 
 using database::PatternDatabase;
 using database::Pattern;
@@ -14,52 +15,50 @@ struct Node {
 };
 
 PatternDatabase::PatternDatabase(std::vector<std::vector<int> > patterns)
-    : startingPatterns(patterns)
 {
-    directions = {Direction::Up, Direction::Left, Direction::Right, Direction::Down};
-
     std::cout << "creating first: " << std::endl;
-    generatePatterns(patterns[0], patternDB1);
+    generatePatterns({patterns[0], 15}, patternDB1);
     std::cout << "creating second: " << std::endl;
-    generatePatterns(patterns[1], patternDB2);
+    generatePatterns({patterns[1], 15}, patternDB2);
     std::cout << "creating third: " << std::endl;
-    generatePatterns(patterns[2], patternDB3);
+    generatePatterns({patterns[2], 15}, patternDB3);
     std::cout << "finished" << std::endl;
 }
 
 void 
-PatternDatabase::generatePatterns(Pattern startingPattern, std::vector<Pattern>& patternDB)
+PatternDatabase::generatePatterns(Pattern startingPattern, std::vector<Pattern>& patternDB44)
 {
+    std::vector<int> tiles = {1,2,3,5,6};
     int moves = 0;
-    int count = 0;
+    std::unordered_map<std::string, Pattern> patternDB;
     
     std::queue<Node> frontier;
     frontier.push( {startingPattern, moves} );
+    
+    std::string startingId = Pattern::getId(tiles, startingPattern.getCells());
+    patternDB.insert({startingId, startingPattern});
 
+    patternDB.reserve(524160);
     while (!frontier.empty()){
         Node currentNode = frontier.front();
         Pattern currentPattern = currentNode.pattern;
         frontier.pop();
-        
-        // std::cout << ++count <<std::endl;
-        auto it = std::find_if(patternDB.begin(), patternDB.end(),
-            [currentPattern] (const Pattern& pattern) { 
-                return pattern.equals(currentPattern); }
-        );
 
-        if (it == patternDB.end()){
-            for (int i = 0; i < currentPattern.getSize(); i++){
-                for (auto direction : directions){
-                    if (currentPattern.isValidPermutation(i, direction)){
-                        Pattern permutation = currentPattern.createPermutation(i, direction);
-                        Node node = {permutation, moves};
-                        frontier.push(node);
-                        patternDB1.emplace_back(permutation);
-                    }
-                }
-            }   
+        if (patternDB.size() % 1000 == 0)
+            std::cout << patternDB.size() << ": " << patternDB.bucket_count() << std::endl;        
+
+        std::vector<Pattern> patterns = currentPattern.getAllReachablePatterns();
+        for (Pattern& newPattern : patterns){
+            std::string id = Pattern::getId(tiles, newPattern.getCells());
+            auto itr = patternDB.find(id);
+            
+            if (itr == patternDB.end()){
+                patternDB.insert({id, currentPattern});
+                frontier.push({std::move(newPattern), 0});
+            }    
         }
     }
+    std::cout << "dsdks" << std::endl;
 }
 
 int 

@@ -11,10 +11,6 @@ private:
 
     std::vector<Pattern> getAllChildPatterns(const Pattern& pattern);
 
-    std::vector<std::vector<int> > startingPatterns;
-
-    std::vector<Direction> directions;
-
     std::vector<Pattern> patternDB1;
 
     std::vector<Pattern> patternDB2;
