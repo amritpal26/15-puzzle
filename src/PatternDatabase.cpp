@@ -18,10 +18,10 @@ PatternDatabase::PatternDatabase(std::vector<std::vector<int> > patterns)
 {
     std::cout << "creating first: " << std::endl;
     generatePatterns({patterns[0], 15}, patternDB1);
-    std::cout << "creating second: " << std::endl;
-    generatePatterns({patterns[1], 15}, patternDB2);
-    std::cout << "creating third: " << std::endl;
-    generatePatterns({patterns[2], 15}, patternDB3);
+    // std::cout << "creating second: " << std::endl;
+    // generatePatterns({patterns[1], 15}, patternDB2);
+    // std::cout << "creating third: " << std::endl;
+    // generatePatterns({patterns[2], 15}, patternDB3);
     std::cout << "finished" << std::endl;
 }
 
@@ -45,7 +45,7 @@ PatternDatabase::generatePatterns(Pattern startingPattern, std::vector<Pattern>&
         frontier.pop();
 
         if (patternDB.size() % 1000 == 0)
-            std::cout << patternDB.size() << ": " << patternDB.bucket_count() << std::endl;        
+            std::cout << patternDB.size() << ": " << frontier.size() << std::endl;        
 
         std::vector<Pattern> patterns = currentPattern.getAllReachablePatterns();
         for (Pattern& newPattern : patterns){
@@ -53,9 +53,9 @@ PatternDatabase::generatePatterns(Pattern startingPattern, std::vector<Pattern>&
             auto itr = patternDB.find(id);
             
             if (itr == patternDB.end()){
-                patternDB.insert({id, currentPattern});
-                frontier.push({std::move(newPattern), 0});
-            }    
+                patternDB.insert({id, newPattern});
+                frontier.push({newPattern, 0});
+            }
         }
     }
     std::cout << "dsdks" << std::endl;

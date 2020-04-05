@@ -84,7 +84,7 @@ std::string
 Pattern::getId(std::vector<int> tiles, std::vector<int> cells){
     std::stringstream ss;
     std::string id = "";
-    tiles.push_back(0);
+    // tiles.push_back(0);
     for (auto tile : tiles){
         auto itr = find(cells.begin(), cells.end(), tile);
         int index = std::distance(cells.begin(), itr);
