@@ -7,59 +7,60 @@
 
 using database::PatternDatabase;
 using database::Pattern;
-using puzzle::Direction;
-
-struct Node {
-    Pattern pattern;
-    int moves;
-};
+using database::Direction;
 
 PatternDatabase::PatternDatabase(std::vector<std::vector<int> > patterns)
-{
-    std::cout << "creating first: " << std::endl;
-    generatePatterns({patterns[0]}, patternDB1);
-    std::cout << "creating second: " << std::endl;
-    generatePatterns({patterns[1]}, patternDB2);
-    std::cout << "creating third: " << std::endl;
-    generatePatterns({patterns[2]}, patternDB3);
-    std::cout << "finished" << std::endl;
+{   
+    Database db1;   Database db2;   Database db3;
+    patternDatabases.push_back(db1);
+    patternDatabases.push_back(db2);
+    patternDatabases.push_back(db3);
+    std::cout << "creating database for first pattern." << std::endl;
+    generatePatterns({patterns[0]}, patternDatabases[0]);
+    std::cout << "creating database for second pattern." << std::endl;
+    generatePatterns({patterns[1]}, patternDatabases[1]);
+    std::cout << "creating databse for third patter." << std::endl;
+    generatePatterns({patterns[2]}, patternDatabases[2]);
+    std::cout << "finished creating database." << std::endl;
 }
 
 void 
-PatternDatabase::generatePatterns(Pattern startingPattern, std::unordered_map<std::string, Pattern>& patternDB)
+PatternDatabase::generatePatterns(Pattern startingPattern, Database& database)
 {
-    std::vector<int> tiles;
     std::vector<int> startingCells = startingPattern.getCells();
-    std::copy_if(startingCells.begin(), startingCells.end(), std::back_inserter(tiles),
+    database.tiles.clear();
+    std::copy_if(startingCells.begin(), startingCells.end(), std::back_inserter(database.tiles),
         [] (int cell) { return cell > 0; }
     );
 
+    std::sort(database.tiles.begin(), database.tiles.end());
+
     int size = 524160;
-    patternDB.reserve(size);
+    database.patterns.reserve(size);
 
     int moves = 0;    
     std::queue<Pattern> frontier;
     frontier.push(startingPattern);
     
-    std::string startingId = Pattern::getId(tiles, startingPattern.getCells());
-    patternDB.insert( {startingId, startingPattern} );
+    std::string startingId = Pattern::getId(database.tiles, startingPattern.getCells());
+    database.patterns.insert( {startingId, startingPattern} );
     
     while (!frontier.empty()){
-        // moves++;
+        moves++;
         Pattern currentPattern = frontier.front();
         frontier.pop();
 
-        if (patternDB.size() % 1000 == 0)
-            std::cout << patternDB.size() << ": " << frontier.size() << std::endl;        
+        if (database.patterns.size() % 1000 == 0)
+            std::cout << database.patterns.size() << ": " << frontier.size() << std::endl;        
 
-        std::vector<Pattern> patterns = currentPattern.getAllReachablePatterns(tiles);
+        std::vector<Pattern> patterns = currentPattern.getAllReachablePatterns(database.tiles);
         for (Pattern& newPattern : patterns){
-            std::string id = Pattern::getId(tiles, newPattern.getCells());
-            auto itr = patternDB.find(id);
+            std::string id = Pattern::getId(database.tiles, newPattern.getCells());
+            auto itr = database.patterns.find(id);
             newPattern.moves = moves;
             
-            if (itr == patternDB.end()){
-                patternDB.insert({id, newPattern});
+            if (itr == database.patterns.end()){
+                database.patterns.insert({id, newPattern});
                 frontier.push(newPattern);
             }
         }
@@ -67,8 +68,12 @@ PatternDatabase::generatePatterns(Pattern startingPattern, std::unordered_map<st
 }
 
 int 
-getHeuristic(const Pattern& pattern)
+PatternDatabase::getHeuristic(const Pattern& pattern) const
 {
-    //TODO: Implement this function.
-    return 0;
+    int totalMoves = 0;
+    for (auto db : patternDatabases){
+        std::string id = Pattern::getId(db.tiles, pattern.getCells());
+        totalMoves += db.patterns[id].moves;
+    }
+    return totalMoves;
 }

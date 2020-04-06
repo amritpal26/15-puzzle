@@ -1,10 +1,13 @@
+#pragma once
+
+#include "PatternDatabase.h"
 
 #include <vector>
 
+using database::PatternDatabase;
+using database::Direction;
+
 namespace puzzle {
-
-enum Direction {Up, Right, Down, Left};
-
 class Board {
 private:
     std::vector<int> tiles;
@@ -13,18 +16,24 @@ private:
     
     int position;
 
+    const PatternDatabase& database;
+
 public:
 
-    Board();
+    Board(std::vector<int> tiles, const PatternDatabase& _database);
 
     std::vector<Direction> getMoves();
 
     void makeMove(Direction direction);
+
+    void undoMove(Direction direction);
 
     bool isValidMove(Direction direction);
 
     void createNewBoard();
 
     void print();
+
+    int getHeuristic();
 };
 }

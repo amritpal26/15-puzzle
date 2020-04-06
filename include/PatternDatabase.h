@@ -1,27 +1,29 @@
+#pragma once
+
 #include "Pattern.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
 
 namespace database {
+
+struct Database{
+    std::unordered_map<std::string, Pattern> patterns;
+    std::vector<int> tiles;
+};
+
 class PatternDatabase {
-
 private:
-
-    void generatePatterns(Pattern startingPattern, std::unordered_map<std::string, Pattern>& patternDB);
+    void generatePatterns(Pattern startingPattern, Database& patternDB);
 
     std::vector<Pattern> getAllChildPatterns(const Pattern& pattern);
 
-    std::unordered_map<std::string, Pattern> patternDB1;
-
-    std::unordered_map<std::string, Pattern> patternDB2;
-
-    std::unordered_map<std::string, Pattern> patternDB3;
+    std::vector<Database> patternDatabases;
 
 public:
 
     PatternDatabase(std::vector<std::vector<int> > patterns);
 
-    int getHeuristic(const Pattern& pattern);
+    int getHeuristic(const Pattern& pattern) const;
 };
 }

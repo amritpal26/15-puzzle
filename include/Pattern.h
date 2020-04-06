@@ -1,13 +1,12 @@
-#ifndef BOARD_H
-#define BOARD_H
+#pragma once
 
 #include <vector>
 #include <algorithm>
-#include "Board.h"
-
-using puzzle::Direction;
 
 namespace database {
+
+enum Direction {Up, Right, Down, Left};
+
 class Pattern {
 
 private:
@@ -45,5 +44,3 @@ public:
 }
 
 void print();
-
-#endif
