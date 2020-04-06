@@ -4,12 +4,9 @@
 
 using database::Pattern;
 
+Pattern::Pattern(){}
 
-Pattern::Pattern(std::vector<int> _cells, int _zeroCellPosition) :
-        cells(_cells),
-        zeroCellPosition(_zeroCellPosition),
-    
-        directions({Direction::Up, Direction::Left, Direction::Right, Direction::Down})
+Pattern::Pattern(std::vector<int> _cells) : cells(_cells)    
 {
 }
 
@@ -18,34 +15,38 @@ Pattern::equals(const Pattern& other) const {
     return std::equal(cells.begin(), cells.end(), other.cells.begin());
 }
 
+std::vector<int>
+Pattern::getCells() const {
+    return cells;
+}
+
 bool 
-Pattern::isValidPermutation(Direction direction){
-    if(direction == Direction::Right && ((zeroCellPosition+1) % 4) != 0)
+Pattern::isValidPermutation(int cellIndex, Direction direction){
+    if(direction == Direction::Right && ((cellIndex+1) % 4) != 0 && cells[(cellIndex+1) % 4] <= 0)
         return true;
-    else if(direction == Direction::Left && (zeroCellPosition % 4) != 0)
+    else if(direction == Direction::Left && (cellIndex % 4) != 0 && cells[cellIndex % 4] <= 0)
         return true;
-    else if(direction == Direction::Up && zeroCellPosition > 3)
+    else if(direction == Direction::Up && cellIndex > 3 && cells[cellIndex-4] <= 0)
         return true;
-    else if (direction == Direction::Down && zeroCellPosition < 12)
+    else if (direction == Direction::Down && cellIndex < 12 && cells[cellIndex+4] <= 0)
         return true;
     
     return false;
 }
 
 Pattern
-Pattern::createPermutation(Direction direction){
+Pattern::createPermutation(int cellIndex, Direction direction){
     std::vector<int> permutationCells(cells.size());
     std::copy(cells.begin(), cells.end(), permutationCells.begin());
 
     //make move to permutation.
-    int newCellIndex = zeroCellPosition + getDelta(direction);
+    int newCellIndex = cellIndex + getDelta(direction);
     int temp = permutationCells[newCellIndex];
-    permutationCells[newCellIndex] = permutationCells[zeroCellPosition];
-    permutationCells[zeroCellPosition] = temp;
+    permutationCells[newCellIndex] = permutationCells[cellIndex];
+    permutationCells[cellIndex] = temp;
 
     // Create and return the new pattern permutation.
-    Pattern pattern = {permutationCells, newCellIndex};
-    return pattern;
+    return {permutationCells};
 }
 
 int 
@@ -64,27 +65,28 @@ Pattern::getDelta(Direction direction){
 }
 
 std::vector<Pattern>
-Pattern::getAllReachablePatterns() {
+Pattern::getAllReachablePatterns(const std::vector<int>& tiles) {
     std::vector<Pattern> reachablePatterns;
-    for (auto direction : directions){
-        if (isValidPermutation(direction)){
-            Pattern pattern = createPermutation(direction);
-            reachablePatterns.emplace_back(std::move(pattern));
+    for (auto tile : tiles){
+
+        auto itr = find(cells.begin(), cells.end(), tile);
+        int index = std::distance(cells.begin(), itr);
+
+        for (int i = 0; i < 4; i++){
+            Direction direction = static_cast<Direction>(i);
+            if (isValidPermutation(index, direction)){
+                Pattern pattern = createPermutation(index, direction);
+                reachablePatterns.push_back(std::move(pattern));
+            }
         }
     }
     return reachablePatterns;
 }
 
-std::vector<int>
-Pattern::getCells() const {
-    return cells;
-}
-
 std::string
-Pattern::getId(std::vector<int> tiles, std::vector<int> cells){
+Pattern::getId(const std::vector<int>& tiles, const std::vector<int>& cells){
     std::stringstream ss;
     std::string id = "";
-    // tiles.push_back(0);
     for (auto tile : tiles){
         auto itr = find(cells.begin(), cells.end(), tile);
         int index = std::distance(cells.begin(), itr);
