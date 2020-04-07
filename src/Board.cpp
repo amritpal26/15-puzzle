@@ -12,7 +12,8 @@ Board::Board(std::vector<int> _tiles, const PatternDatabase& _database) :
     size(4),
     database(_database)
 {
-
+    position = std::distance(tiles.begin(), 
+        std::find(tiles.begin(), tiles.end(), 0));
 }
 
 void
@@ -27,18 +28,28 @@ Board::getMoves(){
         directions.push_back(direction);
     } 
     if (position < 12){
-        Direction direction = Direction::Up;
+        Direction direction = Direction::Down;
         directions.push_back(direction);
     } 
-    if (position != 0 && position != 4 && position != 8 && position != 12){
-        Direction direction = Direction::Up;
+    if (position % 4 != 0){
+        Direction direction = Direction::Left;
         directions.push_back(direction);
     } 
-    if (position != 3 && position != 7 && position != 11 && position != 15){
-        Direction direction = Direction::Up;
+    if ((position + 1) % 4 != 0){
+        Direction direction = Direction::Right;
         directions.push_back(direction);
     }
     
+    return directions;
+}
+
+std::vector<Direction> 
+Board::getMoves(Direction prevMove){
+    std::vector<Direction> directions = getMoves();
+    directions.erase(
+        std::remove_if(directions.begin(), directions.end(), 
+        [prevMove] (Direction direction) { return direction == prevMove; })
+    );
     return directions;
 }
 
@@ -47,22 +58,29 @@ Board::makeMove(Direction direction){
     if (isValidMove(direction)){
         if(direction == Direction::Right){
             tiles[position] = tiles[position + 1];
-            tiles[position + 1] = -1;
+            tiles[position + 1] = 0;
+            position += 1;
         }
         else if(direction == Direction::Left){
             tiles[position] = tiles[position - 1];
-            tiles[position - 1] = -1;
+            tiles[position - 1] = 0;
+            position -= 1;
         }
         else if(direction == Direction::Up){
             tiles[position] = tiles[position -  4];
-            tiles[position - 4] = -1;
+            tiles[position - 4] = 0;
+            position -= 4;
         }
         else if (direction == Direction::Down){
             tiles[position] = tiles[position + 4];
-            tiles[position + 4] = -1;
+            tiles[position + 4] = 0;
+            position += 4;
         }
     } else{
-        std::cerr << "invalid move" << std::endl;
+        std::cerr << "invalid move: " << position << "   " << direction << "     ";
+        for (auto n : tiles)
+            std::cerr << n << ", ";
+        std::cerr << std::endl;
     }
 }
 
@@ -72,24 +90,24 @@ Board::undoMove(Direction direction){
         case Direction::Up :
             makeMove(Direction::Down);
             break;
-        case Direction::Down :
+        case Direction::Down:
             makeMove(Direction::Up);
             break;
-        case Direction::Left :
+        case Direction::Left:
             makeMove(Direction::Right);
             break;
-        case Direction::Right :
+        case Direction::Right:
             makeMove(Direction::Left);
             break;
     }
 }
 
 bool 
-Board::isValidMove(Direction direction){
+Board::isValidMove(Direction direction) const{
     if(direction == Direction::Right)
-        return ((position+1) % 4) == 0;
+        return (position+1) % 4 != 0;
     else if(direction == Direction::Left)
-        return ((position-1) % 4) == 0;
+        return position % 4 != 0;
     else if(direction == Direction::Up)
         return position > 3;
     else

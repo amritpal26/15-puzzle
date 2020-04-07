@@ -8,7 +8,7 @@
 namespace database {
 
 struct Database{
-    std::unordered_map<std::string, Pattern> patterns;
+    std::unordered_map<std::string, int> patterns;
     std::vector<int> tiles;
 };
 

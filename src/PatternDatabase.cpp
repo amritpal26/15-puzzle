@@ -19,7 +19,7 @@ PatternDatabase::PatternDatabase(std::vector<std::vector<int> > patterns)
     generatePatterns({patterns[0]}, patternDatabases[0]);
     std::cout << "creating database for second pattern." << std::endl;
     generatePatterns({patterns[1]}, patternDatabases[1]);
-    std::cout << "creating databse for third patter." << std::endl;
+    std::cout << "creating databse for third pattern." << std::endl;
     generatePatterns({patterns[2]}, patternDatabases[2]);
     std::cout << "finished creating database." << std::endl;
 }
@@ -43,15 +43,12 @@ PatternDatabase::generatePatterns(Pattern startingPattern, Database& database)
     frontier.push(startingPattern);
     
     std::string startingId = Pattern::getId(database.tiles, startingPattern.getCells());
-    database.patterns.insert( {startingId, startingPattern} );
+    database.patterns.insert( {startingId, 0} );
     
     while (!frontier.empty()){
         moves++;
         Pattern currentPattern = frontier.front();
         frontier.pop();
-
-        if (database.patterns.size() % 1000 == 0)
-            std::cout << database.patterns.size() << ": " << frontier.size() << std::endl;        
 
         std::vector<Pattern> patterns = currentPattern.getAllReachablePatterns(database.tiles);
         for (Pattern& newPattern : patterns){
@@ -60,7 +57,7 @@ PatternDatabase::generatePatterns(Pattern startingPattern, Database& database)
             newPattern.moves = moves;
             
             if (itr == database.patterns.end()){
-                database.patterns.insert({id, newPattern});
+                database.patterns.insert({id, moves});
                 frontier.push(newPattern);
             }
         }
@@ -73,7 +70,9 @@ PatternDatabase::getHeuristic(const Pattern& pattern) const
     int totalMoves = 0;
     for (auto db : patternDatabases){
         std::string id = Pattern::getId(db.tiles, pattern.getCells());
-        totalMoves += db.patterns[id].moves;
+        std::cout << id << "  " << db.patterns[id] << "   " ;
+        totalMoves += db.patterns[id];
     }
+    std::cout << totalMoves << std::endl;
     return totalMoves;
 }

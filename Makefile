@@ -1,6 +1,6 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -g
-# CXXFLAGS = -std=c++17 -Wall -O3 -g
+# CXXFLAGS = -std=c++17 -g
+CXXFLAGS = -std=c++17 -Wall -O3 -g
 
 puzzle: obj/main.o obj/Board.o obj/PatternDatabase.o obj/Pattern.o obj/Search.o| bin
 	$(CXX) $(CXXFLAGS) -o bin/puzzle $^

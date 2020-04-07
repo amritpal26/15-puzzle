@@ -41,21 +41,24 @@ main(int argc, char* argv[]) {
 
     showHelp();
 
+    std::vector<int> test = {15, 2, 1, 12, 8, 5, 6, 11, 4, 9, 10, 7, 3, 14, 13, 0};
+    // std::vector<int> test = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0};
+
     while (1){
-        std::string input;
-        getline(std::cin, input);
+        // std::string input;
+        // getline(std::cin, input);
         
-        if (input == "q" || input == "Q" || input == "Quit" )
-            return 0;
+        // if (input == "q" || input == "Q" || input == "Quit" )
+        //     return 0;
 
-        std::vector<int> boardState = getBoard(input);
-        if (boardState.size() == 0){
-            std::cout << "incorrect input" << std::endl;
-            showHelp();
-            continue;
-        }
+        // std::vector<int> boardState = getBoard(input);
+        // if (boardState.size() == 0){
+        //     std::cout << "incorrect input" << std::endl;
+        //     showHelp();
+        //     continue;
+        // }
 
-        Board board = {boardState, patternDatabase};
+        Board board = {test, patternDatabase};
 
         puzzle::Search search;
 
